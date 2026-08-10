@@ -2,7 +2,7 @@
 
 Scrub time across cities. A quiet world-clock widget — browser, PWA, or Tauri desktop.
 
-**Live:** after deploy, your Vercel URL  
+**Live:** https://world-clock-ivory-phi.vercel.app  
 **Repo:** https://github.com/aarsh121/world-clock
 
 ## Install on PC
