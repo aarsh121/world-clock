@@ -1,6 +1,6 @@
 [package]
 name = "world-clock"
-version = "0.1.0"
+version = "0.1.1"
 description = "Dieter Rams–inspired world clock widget"
 authors = ["World Clock"]
 edition = "2021"

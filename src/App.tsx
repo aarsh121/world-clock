@@ -26,7 +26,7 @@ function AppShell() {
         element={
           <div className="app-stage app-stage-solo">
             <Link className="back-home" to="/">
-              World Clock
+              ← Back
             </Link>
             <Widget />
           </div>

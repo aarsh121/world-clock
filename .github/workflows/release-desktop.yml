@@ -10,8 +10,20 @@ permissions:
   contents: write
 
 jobs:
-  release-windows:
-    runs-on: windows-latest
+  publish-tauri:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macos-latest
+            args: '--target aarch64-apple-darwin --bundles dmg'
+          - platform: macos-latest
+            args: '--target x86_64-apple-darwin --bundles dmg'
+          - platform: windows-latest
+            args: '--bundles nsis'
+    runs-on: ${{ matrix.platform }}
     steps:
       - uses: actions/checkout@v4
 
@@ -23,6 +35,8 @@ jobs:
 
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
 
       - name: Rust cache
         uses: swatinem/rust-cache@v2
@@ -32,7 +46,7 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
-      - name: Build Windows installer
+      - name: Build desktop installers
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -40,11 +54,13 @@ jobs:
           tagName: v__VERSION__
           releaseName: 'World Clock v__VERSION__'
           releaseBody: |
-            Download **World Clock_0.x.x_x64-setup.exe** and run it to install the sticky desktop widget.
+            ## Desktop installers
 
-            - Frameless always-on-top sticky note
-            - Drag the top handle to move
-            - Pin / close from the footer
+            - **Windows:** `World.Clock_*_x64-setup.exe`
+            - **macOS Apple Silicon:** `*.aarch64.dmg`
+            - **macOS Intel:** `*.x64.dmg`
+
+            Sticky always-on-top widget. Drag the top handle to move.
           releaseDraft: false
           prerelease: false
-          args: --bundles nsis
+          args: ${{ matrix.args }}
