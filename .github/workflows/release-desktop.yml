@@ -1,0 +1,50 @@
+name: Release desktop installer
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build Windows installer
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: v__VERSION__
+          releaseName: 'World Clock v__VERSION__'
+          releaseBody: |
+            Download **World Clock_0.x.x_x64-setup.exe** and run it to install the sticky desktop widget.
+
+            - Frameless always-on-top sticky note
+            - Drag the top handle to move
+            - Pin / close from the footer
+          releaseDraft: false
+          prerelease: false
+          args: --bundles nsis

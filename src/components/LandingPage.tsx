@@ -1,13 +1,13 @@
 import { Link } from 'react-router-dom'
 import { motion, useReducedMotion } from 'motion/react'
-import { useState } from 'react'
 import { Widget } from './Widget'
 import { installGuideText, useInstallPrompt } from '../lib/install'
+
+const RELEASES_URL = 'https://github.com/aarsh121/world-clock/releases/latest'
 
 export function LandingPage() {
   const reduce = useReducedMotion()
   const { canPrompt, install, installed, browser } = useInstallPrompt()
-  const [guideOpen, setGuideOpen] = useState(false)
 
   const fade = reduce
     ? { duration: 0 }
@@ -16,7 +16,6 @@ export function LandingPage() {
   async function onInstallClick() {
     const result = await install()
     if (result === 'guide') {
-      setGuideOpen(true)
       document.getElementById('install')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
   }
@@ -32,11 +31,9 @@ export function LandingPage() {
           World Clock
         </div>
         <div className="landing-nav-actions">
-          {!installed ? (
-            <button type="button" className="landing-btn ghost" onClick={() => void onInstallClick()}>
-              Install
-            </button>
-          ) : null}
+          <a className="landing-btn ghost" href={RELEASES_URL} target="_blank" rel="noreferrer">
+            Download .exe
+          </a>
           <Link to="/app" className="landing-btn solid">
             Open app
           </Link>
@@ -61,21 +58,20 @@ export function LandingPage() {
             without the spreadsheet math.
           </p>
           <div className="landing-cta">
-            <Link to="/app" className="landing-btn solid large">
-              Launch widget
+            <a className="landing-btn solid large" href={RELEASES_URL} target="_blank" rel="noreferrer">
+              Download for Windows
+            </a>
+            <Link to="/app" className="landing-btn ghost large">
+              Open in browser
             </Link>
-            {!installed ? (
-              <button type="button" className="landing-btn ghost large" onClick={() => void onInstallClick()}>
-                Install on this PC
-              </button>
-            ) : null}
           </div>
           {installed ? (
-            <p className="landing-hint">Already installed — open it from your Start menu / Dock.</p>
-          ) : guideOpen || !canPrompt ? (
-            <p className="landing-hint">{installGuideText(browser)}</p>
+            <p className="landing-hint">Already installed — open it from your Start menu.</p>
           ) : (
-            <p className="landing-hint">Installs as a desktop app from Chrome or Edge.</p>
+            <p className="landing-hint">
+              Get the <strong>.exe installer</strong> for the sticky desktop widget. Or use the
+              browser app below.
+            </p>
           )}
         </motion.div>
 
@@ -110,36 +106,45 @@ export function LandingPage() {
         <h2>Install on your PC</h2>
         <div className="landing-install-grid">
           <article>
-            <h3>Browser install (fastest)</h3>
+            <h3>Windows installer (.exe)</h3>
             <ol>
-              <li>Open this site in <strong>Chrome</strong> or <strong>Edge</strong>.</li>
               <li>
-                Click <strong>Install on this PC</strong> above — or use the install icon in the
-                address bar / browser menu.
+                Download <strong>World Clock_…_x64-setup.exe</strong> from GitHub Releases.
               </li>
-              <li>World Clock opens like a normal desktop app.</li>
+              <li>Run the installer (current-user install, no admin required).</li>
+              <li>
+                A sticky always-on-top widget opens — drag the top handle to place it on your
+                desktop.
+              </li>
+            </ol>
+            <a
+              className="landing-btn solid"
+              style={{ marginTop: 14 }}
+              href={RELEASES_URL}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Download .exe
+            </a>
+          </article>
+          <article>
+            <h3>Browser app (optional)</h3>
+            <ol>
+              <li>Open this site in Chrome or Edge.</li>
+              <li>Use Install from the address bar / menu for a PWA shortcut.</li>
+              <li>Or just use <Link to="/app">Open app</Link> in the browser.</li>
             </ol>
             <p className="landing-install-note">{installGuideText(browser)}</p>
             {!installed ? (
-              <button type="button" className="landing-btn solid" style={{ marginTop: 14 }} onClick={() => void onInstallClick()}>
-                {canPrompt ? 'Install now' : 'Show install steps'}
+              <button
+                type="button"
+                className="landing-btn ghost"
+                style={{ marginTop: 14 }}
+                onClick={() => void onInstallClick()}
+              >
+                {canPrompt ? 'Install browser app' : 'Show browser install steps'}
               </button>
             ) : null}
-          </article>
-          <article>
-            <h3>Sticky desktop note (Tauri)</h3>
-            <ol>
-              <li>
-                Install <a href="https://rustup.rs/">Rust</a> and Tauri prerequisites.
-              </li>
-              <li>
-                Run <code>npm install</code> then <code>npm run tauri:build</code>.
-              </li>
-              <li>
-                Install from <code>src-tauri/target/release/bundle/</code> — frameless,
-                always-on-top sticky widget you can drag on the desktop.
-              </li>
-            </ol>
           </article>
         </div>
       </section>
