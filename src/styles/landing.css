@@ -11,6 +11,13 @@
     radial-gradient(ellipse 55% 45% at 8% 88%, rgba(170, 158, 140, 0.28), transparent 55%),
     linear-gradient(168deg, #f3efe8 0%, #e4ddd3 46%, #d5cdc2 100%);
   overflow-x: hidden;
+  overflow-y: visible;
+}
+
+body.is-landing {
+  background: #e4ddd3;
+  background-image: none;
+  color: var(--landing-ink, #12110f);
 }
 
 .landing-grain {

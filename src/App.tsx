@@ -1,4 +1,5 @@
-import { Link, Navigate, Route, Routes } from 'react-router-dom'
+import { Link, Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { useEffect } from 'react'
 import { LandingPage } from './components/LandingPage'
 import { Widget } from './components/Widget'
 import './styles/widget.css'
@@ -8,15 +9,20 @@ function isTauriRuntime() {
   return typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window
 }
 
-function AppShell() {
-  if (isTauriRuntime()) {
-    document.body.classList.add('is-tauri')
-    return (
-      <div className="app-stage">
-        <Widget />
-      </div>
-    )
-  }
+function useBodyMode(mode: 'landing' | 'app' | 'tauri') {
+  useEffect(() => {
+    const { classList } = document.body
+    classList.remove('is-landing', 'is-app', 'is-tauri')
+    classList.add(`is-${mode}`)
+    return () => {
+      classList.remove(`is-${mode}`)
+    }
+  }, [mode])
+}
+
+function AppRoutes() {
+  const { pathname } = useLocation()
+  useBodyMode(pathname === '/app' ? 'app' : 'landing')
 
   return (
     <Routes>
@@ -34,6 +40,22 @@ function AppShell() {
       />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+  )
+}
+
+function AppShell() {
+  if (isTauriRuntime()) {
+    return <TauriShell />
+  }
+  return <AppRoutes />
+}
+
+function TauriShell() {
+  useBodyMode('tauri')
+  return (
+    <div className="app-stage">
+      <Widget />
+    </div>
   )
 }
 
