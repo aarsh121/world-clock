@@ -263,6 +263,13 @@
   color: var(--landing-ink);
 }
 
+.landing-install-note {
+  margin: 14px 0 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--landing-muted);
+}
+
 .landing-foot {
   display: flex;
   justify-content: space-between;

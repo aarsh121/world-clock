@@ -1,15 +1,25 @@
 import { Link } from 'react-router-dom'
 import { motion, useReducedMotion } from 'motion/react'
+import { useState } from 'react'
 import { Widget } from './Widget'
-import { useInstallPrompt } from '../lib/install'
+import { installGuideText, useInstallPrompt } from '../lib/install'
 
 export function LandingPage() {
   const reduce = useReducedMotion()
-  const { canInstall, install, installed } = useInstallPrompt()
+  const { canPrompt, install, installed, browser } = useInstallPrompt()
+  const [guideOpen, setGuideOpen] = useState(false)
 
   const fade = reduce
     ? { duration: 0 }
     : { duration: 0.7, ease: [0.22, 1, 0.36, 1] as const }
+
+  async function onInstallClick() {
+    const result = await install()
+    if (result === 'guide') {
+      setGuideOpen(true)
+      document.getElementById('install')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
 
   return (
     <div className="landing">
@@ -22,8 +32,8 @@ export function LandingPage() {
           World Clock
         </div>
         <div className="landing-nav-actions">
-          {canInstall ? (
-            <button type="button" className="landing-btn ghost" onClick={() => void install()}>
+          {!installed ? (
+            <button type="button" className="landing-btn ghost" onClick={() => void onInstallClick()}>
               Install
             </button>
           ) : null}
@@ -54,19 +64,19 @@ export function LandingPage() {
             <Link to="/app" className="landing-btn solid large">
               Launch widget
             </Link>
-            {canInstall ? (
-              <button type="button" className="landing-btn ghost large" onClick={() => void install()}>
+            {!installed ? (
+              <button type="button" className="landing-btn ghost large" onClick={() => void onInstallClick()}>
                 Install on this PC
               </button>
-            ) : (
-              <a href="#install" className="landing-btn ghost large">
-                How to install
-              </a>
-            )}
+            ) : null}
           </div>
           {installed ? (
             <p className="landing-hint">Already installed — open it from your Start menu / Dock.</p>
-          ) : null}
+          ) : guideOpen || !canPrompt ? (
+            <p className="landing-hint">{installGuideText(browser)}</p>
+          ) : (
+            <p className="landing-hint">Installs as a desktop app from Chrome or Edge.</p>
+          )}
         </motion.div>
 
         <motion.div
@@ -102,13 +112,19 @@ export function LandingPage() {
           <article>
             <h3>Browser install (fastest)</h3>
             <ol>
-              <li>Open this site in Chrome or Edge.</li>
+              <li>Open this site in <strong>Chrome</strong> or <strong>Edge</strong>.</li>
               <li>
-                Click the install icon in the address bar, or use{' '}
-                <strong>Install on this PC</strong> above.
+                Click <strong>Install on this PC</strong> above — or use the install icon in the
+                address bar / browser menu.
               </li>
               <li>World Clock opens like a normal desktop app.</li>
             </ol>
+            <p className="landing-install-note">{installGuideText(browser)}</p>
+            {!installed ? (
+              <button type="button" className="landing-btn solid" style={{ marginTop: 14 }} onClick={() => void onInstallClick()}>
+                {canPrompt ? 'Install now' : 'Show install steps'}
+              </button>
+            ) : null}
           </article>
           <article>
             <h3>Sticky desktop note (Tauri)</h3>
