@@ -111,17 +111,17 @@ export function LandingPage() {
             </ol>
           </article>
           <article>
-            <h3>Native installer (Tauri)</h3>
+            <h3>Sticky desktop note (Tauri)</h3>
             <ol>
               <li>
                 Install <a href="https://rustup.rs/">Rust</a> and Tauri prerequisites.
               </li>
               <li>
-                Clone the repo, then run <code>npm install</code> and{' '}
-                <code>npm run tauri:build</code>.
+                Run <code>npm install</code> then <code>npm run tauri:build</code>.
               </li>
               <li>
-                Find the installer in <code>src-tauri/target/release/bundle/</code>.
+                Install from <code>src-tauri/target/release/bundle/</code> — frameless,
+                always-on-top sticky widget you can drag on the desktop.
               </li>
             </ol>
           </article>

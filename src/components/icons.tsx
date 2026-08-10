@@ -44,3 +44,27 @@ export function SunIcon({ className }: Props) {
     </svg>
   )
 }
+
+export function CloseIcon({ className }: Props) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden>
+      <path d="M7 7l10 10M17 7 7 17" />
+    </svg>
+  )
+}
+
+export function PinIcon({ className }: Props) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <path d="M12 17v4M8.5 3.5 10 10H7l5 7 5-7h-3l1.5-6.5Z" />
+    </svg>
+  )
+}
+
+export function RemoveIcon({ className }: Props) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden>
+      <path d="M6 12h12" />
+    </svg>
+  )
+}

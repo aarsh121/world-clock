@@ -83,7 +83,7 @@ export function SettingsSheet({ open, prefs, isTauri, onClose, onChange, onReset
 
               {isTauri ? (
                 <div className="settings-row">
-                  <label htmlFor="aot">Always on top</label>
+                  <label htmlFor="aot">Keep on top (sticky)</label>
                   <button
                     type="button"
                     className={`toggle${prefs.alwaysOnTop ? ' is-on' : ''}`}

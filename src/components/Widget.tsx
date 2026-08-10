@@ -18,7 +18,16 @@ async function setAlwaysOnTop(enabled: boolean) {
     const { getCurrentWindow } = await import('@tauri-apps/api/window')
     await getCurrentWindow().setAlwaysOnTop(enabled)
   } catch {
-    // Running in browser — ignore
+    // browser
+  }
+}
+
+async function closeWindow() {
+  try {
+    const { getCurrentWindow } = await import('@tauri-apps/api/window')
+    await getCurrentWindow().close()
+  } catch {
+    // browser
   }
 }
 
@@ -27,12 +36,19 @@ function isTauriRuntime() {
 }
 
 export function Widget() {
-  const [prefs, setPrefs] = useState<Prefs>(() => loadPrefs())
+  const tauri = isTauriRuntime()
+  const [prefs, setPrefs] = useState<Prefs>(() => {
+    const loaded = loadPrefs()
+    // Sticky desktop widget defaults to pinned
+    if (tauri && localStorage.getItem('world-clock:v1') == null) {
+      return { ...loaded, alwaysOnTop: true }
+    }
+    return loaded
+  })
   const [now, setNow] = useState(() => Date.now())
   const [scrubMs, setScrubMs] = useState(0)
   const [addOpen, setAddOpen] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
-  const tauri = isTauriRuntime()
 
   useEffect(() => {
     const id = window.setInterval(() => setNow(Date.now()), 1000)
@@ -56,7 +72,6 @@ export function Widget() {
   const existingIds = useMemo(() => new Set(prefs.cities.map((c) => c.id)), [prefs.cities])
 
   function updatePrefs(next: Prefs) {
-    // Keep home first in list for visual hierarchy
     const homeCity = next.cities.find((c) => c.id === next.homeId)
     const rest = next.cities.filter((c) => c.id !== next.homeId)
     setPrefs({
@@ -70,6 +85,15 @@ export function Widget() {
     updatePrefs({ ...prefs, cities: [...prefs.cities, city] })
   }
 
+  function removeCity(cityId: string) {
+    if (prefs.cities.length <= 1) return
+    if (cityId === prefs.homeId) return
+    updatePrefs({
+      ...prefs,
+      cities: prefs.cities.filter((c) => c.id !== cityId),
+    })
+  }
+
   function resetPrefs() {
     const detected = detectHomeCity()
     setPrefs({
@@ -77,12 +101,14 @@ export function Widget() {
       homeId: detected.id,
       hour12: false,
       workHours: { ...DEFAULT_WORK_HOURS },
-      alwaysOnTop: false,
+      alwaysOnTop: tauri,
     })
   }
 
   return (
-    <div className="widget">
+    <div className={`widget${tauri ? ' is-sticky' : ''}`}>
+      {tauri ? <div className="sticky-drag" data-tauri-drag-region title="Drag" /> : null}
+
       <Timeline
         scrubMs={scrubMs}
         onScrub={setScrubMs}
@@ -100,7 +126,16 @@ export function Widget() {
             prefs.hour12,
             prefs.workHours,
           )
-          return <CityRow key={city.id} city={city} view={view} />
+          const canRemove = city.id !== home.id && prefs.cities.length > 1
+          return (
+            <CityRow
+              key={city.id}
+              city={city}
+              view={view}
+              canRemove={canRemove}
+              onRemove={() => removeCity(city.id)}
+            />
+          )
         })}
       </div>
 
@@ -109,6 +144,10 @@ export function Widget() {
         onRecenter={() => setScrubMs(0)}
         onAdd={() => setAddOpen(true)}
         canRecenter={Math.abs(scrubMs) >= 30_000}
+        isSticky={tauri}
+        alwaysOnTop={prefs.alwaysOnTop}
+        onTogglePin={() => updatePrefs({ ...prefs, alwaysOnTop: !prefs.alwaysOnTop })}
+        onClose={() => void closeWindow()}
       />
 
       <AddCitySheet

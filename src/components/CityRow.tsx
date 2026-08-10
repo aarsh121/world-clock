@@ -1,26 +1,42 @@
 import type { City } from '../lib/cities'
 import type { CityViewModel } from '../lib/time'
-import { MoonIcon, SunIcon } from './icons'
+import { MoonIcon, RemoveIcon, SunIcon } from './icons'
 
 type Props = {
   city: City
   view: CityViewModel
+  canRemove?: boolean
+  onRemove?: () => void
 }
 
-export function CityRow({ city, view }: Props) {
+export function CityRow({ city, view, canRemove, onRemove }: Props) {
   return (
     <div className={`city-row${view.dim ? ' is-dim' : ''}`}>
-      <div>
+      <div className="city-main">
         <div className="city-meta">{view.offsetMeta}</div>
         <div className="city-name">{city.name}</div>
       </div>
-      <div>
+      <div className="city-side">
         <div className="city-status">
           <span>{view.status.label}</span>
           <StatusGlyph tone={view.status.tone} id={view.status.id} />
         </div>
         <div className="city-time">{view.timeLabel}</div>
       </div>
+      {canRemove && onRemove ? (
+        <button
+          type="button"
+          className="city-remove"
+          aria-label={`Remove ${city.name}`}
+          title="Remove city"
+          onClick={(e) => {
+            e.stopPropagation()
+            onRemove()
+          }}
+        >
+          <RemoveIcon />
+        </button>
+      ) : null}
     </div>
   )
 }

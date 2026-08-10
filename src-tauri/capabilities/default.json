@@ -1,11 +1,16 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Default desktop capabilities",
+  "description": "Sticky desktop widget capabilities",
   "windows": ["main"],
   "permissions": [
     "core:default",
     "core:window:allow-set-always-on-top",
-    "core:window:allow-set-focus"
+    "core:window:allow-set-focus",
+    "core:window:allow-close",
+    "core:window:allow-start-dragging",
+    "core:window:allow-set-skip-taskbar",
+    "core:window:allow-show",
+    "core:window:allow-hide"
   ]
 }
